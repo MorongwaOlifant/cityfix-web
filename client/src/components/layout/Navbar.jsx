@@ -1,7 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+  const isSignInPage = location.pathname === "/login/user";
+  const isSignUpPage = location.pathname === "/signup";
+  const isAdminLoginPage = location.pathname === "/login/admin";
   const [activeSection, setActiveSection] = useState("hero");
 
   useEffect(() => {
@@ -36,52 +41,66 @@ export default function Navbar() {
         <span className="text-xl font-semibold text-gray-800">CityFix</span>
       </div>
 
-      {/* Center: Navigation Links */}
-      <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-        <a
-          href="#hero"
-          className={`transition-colors ${
-            activeSection === "hero" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-          }`}
-        >
-          Home
-        </a>
-        <a
-          href="#how-it-works"
-          className={`transition-colors ${
-            activeSection === "how-it-works" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-          }`}
-        >
-          How CityFix Works
-        </a>
-        <a
-          href="#real-impact"
-          className={`transition-colors ${
-            activeSection === "real-impact" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-          }`}
-        >
-          Making Real Impact Together
-        </a>
-        <a
-          href="#real-results"
-          className={`transition-colors ${
-            activeSection === "real-results" ? "text-[#f18b24] font-bold" : "text-[#5b9138] hover:text-[#4a7a2d]"
-          }`}
-        >
-          Real People, Real Results
-        </a>
-      </div>
+      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, and non-admin pages */}
+      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && (
+        <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+          <a
+            href="#hero"
+            className={`transition-colors ${
+              activeSection === "hero" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+            }`}
+          >
+            Home
+          </a>
+          <a
+            href="#how-it-works"
+            className={`transition-colors ${
+              activeSection === "how-it-works" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+            }`}
+          >
+            How CityFix Works
+          </a>
+          <a
+            href="#real-impact"
+            className={`transition-colors ${
+              activeSection === "real-impact" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+            }`}
+          >
+            Making Real Impact Together
+          </a>
+          <a
+            href="#real-results"
+            className={`transition-colors ${
+              activeSection === "real-results" ? "text-[#f18b24] font-bold" : "text-[#5b9138] hover:text-[#4a7a2d]"
+            }`}
+          >
+            Real People, Real Results
+          </a>
+        </div>
+      )}
 
-      {/* Right: Sign In Button */}
-      <div className="hidden md:block">
-        <Link
-          to="/login"
-          className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
-          style={{ borderRadius: '9999px' }}
-        >
-          Sign In
-        </Link>
-      </div>
+      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, and non-admin pages */}
+      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && (
+        <div className="hidden md:block">
+          {isLoginPage ? (
+            <Link
+              to="/"
+              className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
+              style={{ borderRadius: '9999px' }}
+            >
+              Home
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
+              style={{ borderRadius: '9999px' }}
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Mobile Menu Button (placeholder for hamburger) */}
       <div className="md:hidden">

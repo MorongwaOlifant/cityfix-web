@@ -65,14 +65,14 @@ export default function LoginEntry() {
               <div className="space-y-3 w-full">
                 <Button
                   onClick={() => onNavigate("signin")}
-                  className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] text-white py-6 transition-all border-0"
+                  className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] text-white py-3 transition-all border-0"
                   style={{ fontSize: '16px', fontWeight: 600, borderRadius: '9999px' }}
                 >
                   I'm a Returning User
                 </Button>
                 <Button
                   onClick={() => onNavigate("signup")}
-                  className="w-full border-2 border-[#4B693C] text-[#4B693C] bg-white hover:bg-[#4B693C]/5 py-6 transition-all"
+                  className="w-full border-2 border-[#4B693C] text-[#4B693C] bg-white hover:bg-[#4B693C]/5 py-3 transition-all"
                   style={{ fontSize: '16px', fontWeight: 600, borderRadius: '9999px' }}
                 >
                   I'm New Here
@@ -103,7 +103,7 @@ export default function LoginEntry() {
               <div className="w-full">
                 <Button
                   onClick={() => onNavigate("admin-login")}
-                  className="w-full bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-lg text-white py-6 transition-all border-0"
+                  className="w-full bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-lg text-white py-3 transition-all border-0"
                   style={{ fontSize: '16px', fontWeight: 600, borderRadius: '9999px' }}
                 >
                   Admin Login
