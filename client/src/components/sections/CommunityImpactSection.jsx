@@ -3,7 +3,7 @@ import { Award } from "lucide-react";
 
 export default function CommunityImpactSection() {
   return (
-    <div id="dashboard" className="py-24 bg-white">
+    <div id="real-results" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

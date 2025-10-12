@@ -1,166 +1,96 @@
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
-import { Button } from "../common/Button";
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-export default function Navbar({ currentPage, onNavigate }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
-  const { scrollY } = useScroll();
+export default function Navbar() {
+  const [activeSection, setActiveSection] = useState("hero");
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious();
+  useEffect(() => {
+    const sections = ["hero", "how-it-works", "real-impact", "real-results"];
 
-    if (latest > previous && latest > 150) {
-      setIsVisible(false);
-    } else {
-      setIsVisible(true);
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.5, rootMargin: "-50% 0px -50% 0px" }
+    );
 
-    if (latest > 50) {
-      setScrolled(true);
-    } else {
-      setScrolled(false);
-    }
-  });
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <motion.nav
-      className={`bg-white border-b sticky top-0 z-50 transition-all ${
-        scrolled ? 'border-gray-200 shadow-md' : 'border-transparent'
-      }`}
-      initial={{ y: 0 }}
-      animate={{ y: isVisible ? 0 : -100 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div
-            className="flex items-center cursor-pointer"
-            onClick={() => onNavigate("home")}
-          >
-            <div className="w-8 h-8 rounded-lg bg-[#5b9138] flex items-center justify-center mr-2">
-              <div className="w-4 h-4 border-2 border-white rounded"></div>
-            </div>
-            <span className="text-[#222222]" style={{ fontSize: '20px', fontWeight: 700 }}>CityFix</span>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a
-              href="#home"
-              className={`transition-colors ${
-                currentPage === "home" ? "text-[#5b9138]" : "text-gray-600 hover:text-[#5b9138]"
-              }`}
-            >
-              Home
-            </a>
-            <a
-              href="#report-section"
-              className={`transition-colors ${
-                currentPage === "report" ? "text-[#5b9138]" : "text-gray-600 hover:text-[#5b9138]"
-              }`}
-            >
-              Report Issue
-            </a>
-            <a
-              href="#my-reports"
-              className={`transition-colors ${
-                currentPage === "myreports" ? "text-[#5b9138]" : "text-gray-600 hover:text-[#5b9138]"
-              }`}
-            >
-              My Reports
-            </a>
-            <a
-              href="#dashboard"
-              className={`transition-colors ${
-                currentPage === "admin" ? "text-[#5b9138]" : "text-gray-600 hover:text-[#5b9138]"
-              }`}
-            >
-              Dashboard
-            </a>
-            <a
-              href="/signin"
-              className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white rounded-lg px-6 py-2 transition-all shadow-sm inline-block"
-            >
-              Sign In
-            </a>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+    <nav className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-12 bg-white shadow-sm">
+      {/* Left: Logo */}
+      <div className="flex items-center space-x-2">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
+          <div className="w-5 h-5 border-2 border-white rounded-md"></div>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-4">
-              <button
-                onClick={() => {
-                  onNavigate("home");
-                  setMobileMenuOpen(false);
-                }}
-                className={`text-left ${
-                  currentPage === "home" ? "text-[#5b9138]" : "text-gray-600"
-                }`}
-              >
-                Home
-              </button>
-              <button
-                onClick={() => {
-                  onNavigate("report");
-                  setMobileMenuOpen(false);
-                }}
-                className={`text-left ${
-                  currentPage === "report" ? "text-[#5b9138]" : "text-gray-600"
-                }`}
-              >
-                Report Issue
-              </button>
-              <button
-                onClick={() => {
-                  onNavigate("myreports");
-                  setMobileMenuOpen(false);
-                }}
-                className={`text-left ${
-                  currentPage === "myreports" ? "text-[#5b9138]" : "text-gray-600"
-                }`}
-              >
-                My Reports
-              </button>
-              <button
-                onClick={() => {
-                  onNavigate("admin");
-                  setMobileMenuOpen(false);
-                }}
-                className={`text-left ${
-                  currentPage === "admin" ? "text-[#5b9138]" : "text-gray-600"
-                }`}
-              >
-                Dashboard
-              </button>
-              <Button
-                onClick={() => {
-                  onNavigate("auth");
-                  setMobileMenuOpen(false);
-                }}
-                className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white rounded-lg w-full"
-              >
-                Sign In
-              </Button>
-            </div>
-          </div>
-        )}
+        <span className="text-xl font-semibold text-gray-800">CityFix</span>
       </div>
-    </motion.nav>
+
+      {/* Center: Navigation Links */}
+      <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+        <a
+          href="#hero"
+          className={`transition-colors ${
+            activeSection === "hero" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+          }`}
+        >
+          Home
+        </a>
+        <a
+          href="#how-it-works"
+          className={`transition-colors ${
+            activeSection === "how-it-works" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+          }`}
+        >
+          How CityFix Works
+        </a>
+        <a
+          href="#real-impact"
+          className={`transition-colors ${
+            activeSection === "real-impact" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
+          }`}
+        >
+          Making Real Impact Together
+        </a>
+        <a
+          href="#real-results"
+          className={`transition-colors ${
+            activeSection === "real-results" ? "text-[#f18b24] font-bold" : "text-[#5b9138] hover:text-[#4a7a2d]"
+          }`}
+        >
+          Real People, Real Results
+        </a>
+      </div>
+
+      {/* Right: Sign In Button */}
+      <div className="hidden md:block">
+        <Link
+          to="/login"
+          className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
+          style={{ borderRadius: '9999px' }}
+        >
+          Sign In
+        </Link>
+      </div>
+
+      {/* Mobile Menu Button (placeholder for hamburger) */}
+      <div className="md:hidden">
+        <button className="text-gray-600 hover:text-[#5b9138]">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </nav>
   );
 }

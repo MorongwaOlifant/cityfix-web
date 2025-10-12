@@ -5,7 +5,7 @@ import { Button } from "@/components/common/Button";
 
 const HeroSection = ({ onNavigate }) => {
   return (
-    <div id="home" className="bg-white">
+    <div id="hero" className="bg-white">
       {/* Hero Section */}
       <div className="min-h-[650px] md:min-h-[750px] flex items-center justify-center">
         {/* Hero Content */}

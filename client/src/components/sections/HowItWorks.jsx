@@ -4,7 +4,7 @@ import StepCard from "../shared/StepCard";
 
 export function HowItWorks() {
   return (
-    <div id="report-section" className="py-24 bg-white">
+    <div id="how-it-works" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
