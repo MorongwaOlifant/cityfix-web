@@ -29,8 +29,8 @@ export default function LoginEntry() {
           className="text-center mb-12"
         >
           <div className="flex justify-center mb-6">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
-              <div className="w-5 h-5 border-2 border-white rounded-md"></div>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
+              <div className="w-8 h-8 border-2 border-white rounded-md"></div>
             </div>
           </div>
           <h1 className="text-[#111827] mb-3" style={{ fontSize: '36px', fontWeight: 700 }}>
