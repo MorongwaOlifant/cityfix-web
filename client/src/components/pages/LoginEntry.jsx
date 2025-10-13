@@ -72,8 +72,8 @@ export default function LoginEntry() {
                 </Button>
                 <Button
                   onClick={() => onNavigate("signup")}
-                  className="w-full border-2 border-[#4B693C] text-[#4B693C] bg-white hover:bg-[#4B693C]/5 py-3 transition-all"
-                  style={{ fontSize: '16px', fontWeight: 600, borderRadius: '9999px' }}
+                  className="w-full border-2 border-[#5b9138] text-[#5b9138] bg-white hover:bg-[#5b9138]/5 py-3 transition-all"
+                  style={{ fontSize: '16px', fontWeight: 600, borderRadius: '9999px', color: '#5b9138' }}
                 >
                   I'm New Here
                 </Button>

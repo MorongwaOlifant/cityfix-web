@@ -3,6 +3,7 @@ import { Button } from "../common/Button";
 import { Eye, EyeOff, ArrowLeft, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -14,19 +15,27 @@ export default function AdminLogin() {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
     // Simulate admin login validation
     if (email === "admin@cityfix.com" && password === "admin123") {
-      alert("Admin access granted");
+      toast.success("Admin access granted", {
+        style: {
+          background: '#ECFDF3',
+          color: '#166534',
+          border: '1px solid #A7F3D0',
+          fontWeight: 'bold',
+        },
+        icon: '✅',
+      });
       setTimeout(() => {
         // For now, just navigate back to home
         navigate("/");
       }, 1000);
     } else {
-      alert("Invalid admin credentials");
+      toast.error("Invalid admin credentials");
     }
   };
 
@@ -47,7 +56,7 @@ export default function AdminLogin() {
         {/* Back Button */}
         <button
           onClick={() => onNavigate("login")}
-          className="flex items-center gap-2 text-[#6B7280] hover:text-[#f7941e] transition-colors mb-6"
+          className="flex items-center gap-2 text-[#5b9138] hover:text-[#4a7a2d] transition-colors mb-6"
           style={{ fontSize: '14px' }}
         >
           <ArrowLeft size={16} />

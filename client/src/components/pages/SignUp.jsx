@@ -3,6 +3,7 @@ import { Button } from "../common/Button";
 import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -36,30 +37,38 @@ export default function SignUp() {
 
     // Validation
     if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match");
+      toast.error("Passwords don't match");
       return;
     }
 
     if (passwordStrength < 2) {
-      alert("Please use a stronger password");
+      toast.error("Please use a stronger password");
       return;
     }
 
     if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions");
+      toast.error("Please agree to the terms and conditions");
       return;
     }
 
     // Simulate sign up
-    alert(`Welcome to CityFix, ${formData.fullName}!`);
+    toast.success(`Welcome to CityFix, ${formData.fullName}!`, {
+      style: {
+        background: '#ECFDF3',
+        color: '#166534',
+        border: '1px solid #A7F3D0',
+        fontWeight: 'bold',
+      },
+      icon: '✅',
+    });
     setTimeout(() => {
-      // For now, just navigate back to home
-      navigate("/");
+      // Navigate to report issue page after signup
+      navigate("/report-issue");
     }, 1000);
   };
 
@@ -86,7 +95,7 @@ export default function SignUp() {
         {/* Back Button */}
         <button
           onClick={() => onNavigate("login")}
-          className="flex items-center gap-2 text-[#6B7280] hover:text-[#5b9138] transition-colors mb-6"
+          className="flex items-center gap-2 text-[#5b9138] hover:text-[#4a7a2d] transition-colors mb-6"
           style={{ fontSize: '14px' }}
         >
           <ArrowLeft size={16} />
@@ -241,6 +250,11 @@ export default function SignUp() {
               </button>
             </label>
           </div>
+          {!formData.agreeToTerms && (
+            <p className="text-red-500 text-sm mt-1">
+              You must agree to the Terms and Conditions to continue
+            </p>
+          )}
 
           <Button
             type="submit"

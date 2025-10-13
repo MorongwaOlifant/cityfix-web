@@ -3,6 +3,7 @@ import { Button } from "../common/Button";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -20,10 +21,18 @@ export default function SignIn() {
 
     // Simulate login - extract name from email
     const userName = email.split("@")[0];
-    alert(`Welcome back, ${userName}!`);
+    toast.success(`Welcome back, ${userName}!`, {
+      style: {
+        background: '#ECFDF3',
+        color: '#166534',
+        border: '1px solid #A7F3D0',
+        fontWeight: 'bold',
+      },
+      icon: '✅',
+    });
     setTimeout(() => {
-      // For now, just navigate back to home
-      navigate("/");
+      // Navigate to report issue page after login
+      navigate("/report-issue");
     }, 1000);
   };
 
@@ -46,7 +55,7 @@ export default function SignIn() {
         {/* Back Button */}
         <button
           onClick={() => onNavigate("login")}
-          className="flex items-center gap-2 text-[#6B7280] hover:text-[#5b9138] transition-colors mb-6"
+          className="flex items-center gap-2 text-[#5b9138] hover:text-[#4a7a2d] transition-colors mb-6"
           style={{ fontSize: '14px' }}
         >
           <ArrowLeft size={16} />

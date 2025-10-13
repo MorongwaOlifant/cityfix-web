@@ -7,6 +7,9 @@ export default function Navbar() {
   const isSignInPage = location.pathname === "/login/user";
   const isSignUpPage = location.pathname === "/signup";
   const isAdminLoginPage = location.pathname === "/login/admin";
+  const isReportIssuePage = location.pathname === "/report-issue";
+  const isReportConfirmationPage = location.pathname === "/report-confirmation";
+  const isMyReportsPage = location.pathname === "/my-reports";
   const [activeSection, setActiveSection] = useState("hero");
 
   useEffect(() => {
@@ -34,15 +37,15 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-12 bg-white shadow-sm">
       {/* Left: Logo */}
-      <div className="flex items-center space-x-2">
+      <Link to="/" className="flex items-center space-x-2 cursor-pointer">
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
           <div className="w-5 h-5 border-2 border-white rounded-md"></div>
         </div>
         <span className="text-xl font-semibold text-gray-800">CityFix</span>
-      </div>
+      </Link>
 
-      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, and non-admin pages */}
-      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && (
+      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, non-admin, non-report, non-confirmation, and non-my-reports pages */}
+      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && (
         <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
           <a
             href="#hero"
@@ -79,8 +82,8 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, and non-admin pages */}
-      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && (
+      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, non-admin, non-report, non-confirmation, and non-my-reports pages */}
+      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && (
         <div className="hidden md:block">
           {isLoginPage ? (
             <Link
