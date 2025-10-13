@@ -274,7 +274,8 @@ export default function MyReports() {
                     {/* Actions */}
                     <div className="flex items-center gap-3">
                       <Button
-                        className="border border-gray-300 hover:bg-gray-50 bg-white text-black rounded-lg px-4 py-2 transition-all"
+                        variant="outline"
+                        className="border border-gray-300 hover:bg-gray-50 bg-white rounded-lg px-4 py-2 transition-all"
                         style={{ fontSize: '14px', fontWeight: 600 }}
                       >
                         <Eye className="w-4 h-4 mr-2" />

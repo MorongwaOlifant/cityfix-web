@@ -115,7 +115,8 @@ export default function ReportConfirmation() {
           </Button>
           <Button
             onClick={handleSubmitAnother}
-            className="flex-1 border-2 border-gray-300 text-[#166534] hover:underline bg-white hover:bg-gray-50 rounded-lg py-4 transition-all"
+            variant="green"
+            className="flex-1 border-2 border-gray-300 bg-white hover:bg-gray-50 rounded-lg py-4 transition-all"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
             Submit Another

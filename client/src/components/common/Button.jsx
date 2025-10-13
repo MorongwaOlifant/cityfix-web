@@ -15,7 +15,8 @@ const Button = ({
     primary: 'bg-[#587C3C] hover:bg-[#4a6a32] text-white focus:ring-[#587C3C]',
     secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 focus:ring-gray-500',
     danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-    outline: 'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:ring-gray-500'
+    outline: 'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:ring-gray-500',
+    green: 'border border-gray-300 bg-white hover:bg-gray-50 text-[#5b9138] focus:ring-[#5b9138]'
   };
 
   const sizes = {
