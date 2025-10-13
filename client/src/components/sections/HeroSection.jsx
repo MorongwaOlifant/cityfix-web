@@ -2,8 +2,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/common/Button";
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = ({ onNavigate }) => {
+  const navigate = useNavigate();
   return (
     <div id="hero" className="bg-white">
       {/* Hero Section */}
@@ -29,10 +31,10 @@ const HeroSection = ({ onNavigate }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
             >
-              <a
-                href="#report-section"
-                className="relative bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-2xl text-white rounded-[50px] px-24 py-5 transition-all shadow-xl overflow-hidden group border-0 inline-block"
-                style={{ fontSize: '18px', fontWeight: 600, textDecoration: 'none' }}
+              <button
+                onClick={() => navigate("/login-entry")}
+                className="relative bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-2xl text-white rounded-[50px] px-24 py-5 transition-all shadow-xl overflow-hidden group border-0"
+                style={{ fontSize: '18px', fontWeight: 600 }}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Report an Issue
@@ -50,7 +52,7 @@ const HeroSection = ({ onNavigate }) => {
                   whileHover={{ x: "100%" }}
                   transition={{ duration: 0.6 }}
                 />
-              </a>
+              </button>
             </motion.div>
           </motion.div>
         </div>

@@ -31,8 +31,8 @@ export default function SignIn() {
       icon: '✅',
     });
     setTimeout(() => {
-      // Navigate to report issue page after login
-      navigate("/report-issue");
+      // Navigate to my reports page after login for returning users
+      navigate("/my-reports");
     }, 1000);
   };
 
