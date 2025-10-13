@@ -288,7 +288,7 @@ export default function ReportIssue() {
                   <Button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex-1 border-2 border-gray-300 text-[#166534] hover:underline bg-white hover:bg-gray-50 rounded-lg py-2 transition-all"
+                    className="flex-1 border-2 border-gray-300 text-black hover:underline bg-white hover:bg-gray-50 rounded-lg py-2 transition-all"
                     style={{ fontSize: '16px', fontWeight: 600 }}
                   >
                     Back
@@ -344,7 +344,7 @@ export default function ReportIssue() {
                   <Button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex-1 border-2 border-gray-300 text-[#166534] hover:underline bg-white hover:bg-gray-50 rounded-lg py-4 transition-all"
+                    className="flex-1 border-2 border-gray-300 text-black hover:underline bg-white hover:bg-gray-50 rounded-lg py-4 transition-all"
                     style={{ fontSize: '16px', fontWeight: 600 }}
                   >
                     Back

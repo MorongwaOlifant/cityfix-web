@@ -107,13 +107,11 @@ export default function ReportConfirmation() {
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Button
             onClick={handleTrackReport}
-            className="flex-1 bg-gray-900 hover:bg-gray-800 text-white rounded-lg py-4 transition-all shadow-sm hover:shadow-md border-0"
+            className="flex-1 rounded-lg bg-[#1a1f29] text-white text-sm px-4 py-2 font-semibold shadow-md hover:scale-105 transition-transform duration-200 border-0"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
-            <Link to="/my-reports" className="flex items-center">
-              Track My Report
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
+            Track My Report
+            <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
           <Button
             onClick={handleSubmitAnother}

@@ -99,7 +99,7 @@ export default function MyReports() {
             </button>
             <Button
               onClick={handleNewReport}
-              className="bg-[#F7941E] hover:bg-[#e88410] text-white rounded-full px-6 py-3 transition-all border-0"
+              className="bg-[#F7941E] hover:bg-[#e88410] text-white rounded-full px-5 py-2 transition-all border-0"
               style={{ fontSize: '14px', fontWeight: 600 }}
             >
               New Report
