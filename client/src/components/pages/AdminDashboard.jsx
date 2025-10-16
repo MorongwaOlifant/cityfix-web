@@ -7,14 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import {
@@ -22,13 +14,12 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Search,
-  Filter,
   LayoutDashboard,
   FileText,
   Users,
   TrendingUp,
 } from "lucide-react";
+import ReportFilter from "../common/ReportFilter";
 
 const mockIssues = [
   {
@@ -118,16 +109,17 @@ export function AdminDashboard() {
 
   const getStatusBadge = (status) => {
     const variants = {
-      pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
-      "in-progress": "bg-blue-100 text-blue-700 border-blue-200",
-      resolved: "bg-green-100 text-green-700 border-green-200",
-      rejected: "bg-red-100 text-red-700 border-red-200",
+      pending: "bg-yellow-100 text-yellow-700",
+      "in-progress": "bg-blue-100 text-blue-700",
+      resolved: "bg-green-100 text-green-700",
+      rejected: "bg-red-100 text-red-700",
     };
 
     return (
-      <Badge className={`${variants[status]} border`} variant="outline">
+      <span className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full ${variants[status]}`}>
+        {getStatusIcon(status)}
         {status.charAt(0).toUpperCase() + status.slice(1).replace("-", " ")}
-      </Badge>
+      </span>
     );
   };
 
@@ -137,28 +129,28 @@ export function AdminDashboard() {
       value: issues.length.toString(),
       icon: FileText,
       color: "text-blue-500",
-      bg: "bg-blue-50",
+      bg: "bg-blue-100",
     },
     {
       title: "Pending",
       value: issues.filter((i) => i.status === "pending").length.toString(),
       icon: Clock,
-      color: "text-yellow-500",
-      bg: "bg-yellow-50",
+      color: "text-yellow-600",
+      bg: "bg-yellow-100",
     },
     {
       title: "In Progress",
       value: issues.filter((i) => i.status === "in-progress").length.toString(),
       icon: TrendingUp,
-      color: "text-blue-500",
-      bg: "bg-blue-50",
+      color: "text-blue-600",
+      bg: "bg-blue-100",
     },
     {
       title: "Resolved",
       value: issues.filter((i) => i.status === "resolved").length.toString(),
       icon: CheckCircle,
-      color: "text-green-500",
-      bg: "bg-green-50",
+      color: "text-green-600",
+      bg: "bg-green-100",
     },
   ];
 
@@ -204,116 +196,97 @@ export function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="flex flex-wrap gap-4 mb-8">
+            <div className="flex w-full justify-between gap-6 mb-6">
               {stats.map((stat) => (
-                <div key={stat.title} className="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between w-full max-w-xs">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <h2 className="text-2xl font-semibold">{stat.value}</h2>
+                <div key={stat.title} className="w-1/4 min-h-[120px] p-5 bg-white rounded-xl shadow-sm flex items-center justify-between">
+                  <div className="flex flex-col gap-y-2">
+                    <p className="text-base font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="text-3xl font-bold">{stat.value}</p>
                   </div>
-                  <div className={`${stat.bg} p-2 rounded-lg`}>
-                    <stat.icon className={`${stat.color} w-5 h-5`} />
+                  <div className={`${stat.bg} p-3 rounded-lg`}>
+                    <stat.icon className={`${stat.color} w-8 h-8`} />
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Filters */}
-            <Card className="mb-6 border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle>Filter Reports</CardTitle>
-                <CardDescription>Search and filter issue reports</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <Input
-                      placeholder="Search by location, category, or ID..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 rounded-lg"
-                    />
-                  </div>
-                  <div className="flex items-center">
-                    <Filter className="mr-2 text-gray-400" size={18} />
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="rounded-lg">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="resolved">Resolved</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white rounded-lg shadow-sm mt-6 mb-4 p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Filter Reports</h3>
+                <p className="text-sm text-gray-600">Search and filter issue reports</p>
+              </div>
+              <ReportFilter
+                onSearchChange={setSearchTerm}
+                onStatusChange={setStatusFilter}
+                initialSearch={searchTerm}
+                initialStatus={statusFilter === "all" ? "All Statuses" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1).replace("-", " ")}
+              />
+            </div>
 
             {/* Table */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle>Recent Reports</CardTitle>
-                <CardDescription>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Reports</h3>
+                <p className="text-sm text-gray-600">
                   Showing {filteredIssues.length} of {issues.length} reports
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Reporter</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="px-4 py-3 text-left">ID</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Category</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Location</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Description</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Reporter</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Date</TableHead>
+                      <TableHead className="px-4 py-3 text-left">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredIssues.map((issue) => (
+                      <TableRow key={issue.id} className="hover:bg-gray-50">
+                        <TableCell className="px-4 py-3">
+                          <span className="text-gray-700 text-sm">{issue.id}</span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <div className="flex items-center">
+                            <span className="text-gray-900 text-sm font-medium">{issue.category}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <span className="text-gray-600 text-sm">{issue.location}</span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <span className="text-gray-600 line-clamp-2 max-w-xs text-sm">
+                            {issue.description}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <span className="text-gray-600 text-sm">{issue.reporter}</span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <span className="text-gray-600 text-sm">{issue.date}</span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <div className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full ${
+                            issue.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+                            issue.status === 'in-progress' ? 'bg-blue-100 text-blue-600' :
+                            issue.status === 'resolved' ? 'bg-green-100 text-green-600' :
+                            'bg-red-100 text-red-600'
+                          }`}>
+                            {getStatusIcon(issue.status)}
+                            {issue.status.charAt(0).toUpperCase() + issue.status.slice(1).replace("-", " ")}
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredIssues.map((issue) => (
-                        <TableRow key={issue.id} className="hover:bg-gray-50">
-                          <TableCell>
-                            <span className="text-gray-700">{issue.id}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <span className="text-gray-900">{issue.category}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-gray-600">{issue.location}</span>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-gray-600 line-clamp-2 max-w-xs">
-                              {issue.description}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-gray-600">{issue.reporter}</span>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-gray-600">{issue.date}</span>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              {getStatusIcon(issue.status)}
-                              {getStatusBadge(issue.status)}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
