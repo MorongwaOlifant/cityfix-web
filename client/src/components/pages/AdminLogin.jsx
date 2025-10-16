@@ -30,10 +30,7 @@ export default function AdminLogin() {
         },
         icon: '✅',
       });
-      setTimeout(() => {
-        // For now, just navigate back to home
-        navigate("/");
-      }, 1000);
+      navigate("/admin/dashboard");
     } else {
       toast.error("Invalid admin credentials");
     }

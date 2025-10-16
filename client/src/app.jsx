@@ -8,6 +8,7 @@ import LoginEntry from "./components/pages/LoginEntry";
 import SignIn from "./components/pages/SignIn";
 import SignUp from "./components/pages/SignUp";
 import AdminLogin from "./components/pages/AdminLogin";
+import { AdminDashboard } from "./components/pages/AdminDashboard";
 import ReportIssue from "./components/pages/ReportIssue";
 import ReportConfirmation from "./components/pages/ReportConfirmation";
 import MyReports from "./components/pages/MyReports";
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/my-reports" element={<MyReports />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
         <Footer />
         <ToastContainer

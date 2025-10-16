@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login";
+  const isLoginPage = location.pathname === "/login-entry";
   const isSignInPage = location.pathname === "/login/user";
   const isSignUpPage = location.pathname === "/signup";
   const isAdminLoginPage = location.pathname === "/login/admin";
   const isReportIssuePage = location.pathname === "/report-issue";
   const isReportConfirmationPage = location.pathname === "/report-confirmation";
   const isMyReportsPage = location.pathname === "/my-reports";
+  const isAdminDashboardPage = location.pathname === "/admin/dashboard";
   const [activeSection, setActiveSection] = useState("hero");
 
   useEffect(() => {
@@ -44,8 +45,8 @@ export default function Navbar() {
         <span className="text-xl font-semibold text-gray-800">CityFix</span>
       </Link>
 
-      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, non-admin, non-report, non-confirmation, and non-my-reports pages */}
-      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && (
+      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, non-admin, non-report, non-confirmation, non-my-reports, and non-admin-dashboard pages */}
+      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && !isAdminDashboardPage && (
         <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
           <a
             href="#hero"
@@ -82,8 +83,18 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, non-admin, non-report, non-confirmation, and non-my-reports pages */}
-      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && (
+      {/* Right: Admin Info and Sign Out - Only show on admin dashboard page */}
+      {isAdminDashboardPage && (
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground">Admin: Administrator</span>
+          <a href="/" className="border border-gray-300 text-sm px-4 py-1.5 rounded-full hover:bg-gray-100 transition">
+            Sign Out
+          </a>
+        </div>
+      )}
+
+      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, non-admin, non-report, non-confirmation, non-my-reports, and non-admin-dashboard pages */}
+      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && !isAdminDashboardPage && (
         <div className="hidden md:block">
           {isLoginPage ? (
             <Link
@@ -95,7 +106,7 @@ export default function Navbar() {
             </Link>
           ) : (
             <Link
-              to="/login"
+              to="/login-entry"
               className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
               style={{ borderRadius: '9999px' }}
             >
