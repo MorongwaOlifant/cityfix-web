@@ -10,13 +10,16 @@ router.post('/register', async (req, res) => {
   const { fullName, email, password } = req.body;
 
   try {
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a new user (default role = 'user')
     const newUser = new User({
       fullName,
       email,
@@ -25,8 +28,9 @@ router.post('/register', async (req, res) => {
 
     await newUser.save();
 
+    // Create JWT including user role
     const token = jwt.sign(
-      { userId: newUser._id },
+      { userId: newUser._id, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -37,7 +41,8 @@ router.post('/register', async (req, res) => {
       user: {
         id: newUser._id,
         name: newUser.fullName,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role
       }
     });
   } catch (error) {
@@ -51,18 +56,21 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // Find the user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Create JWT including role
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -73,7 +81,8 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         name: user.fullName,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {

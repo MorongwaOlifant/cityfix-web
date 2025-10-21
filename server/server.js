@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
+const reportRoutes = require('./routes/report'); 
 
 const app = express();
 
@@ -21,6 +22,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // API Routes
 app.use('/api', authRoutes);
+app.use('/api/report', reportRoutes); 
 
 // Test Route
 app.get('/', (req, res) => {
