@@ -1,42 +1,24 @@
-import { useState } from "react";
-import { ArrowLeft, Search, Eye, X, Droplet, Construction, Lightbulb } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Search, Eye, X, Droplet, Construction, Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "../common/Button";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export default function MyReports() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState(null);
-
-  // Mock data - in real app this would come from API
-  const reports = [
-    {
-      id: "ABC123",
-      category: "Pothole / Road Damage",
-      location: "Main Street & Oak Avenue",
-      description: "Large pothole causing traffic issues",
-      status: "In Progress",
-      submittedAt: new Date("2024-10-10"),
-      phone: "+1234567890"
-    },
-    {
-      id: "DEF456",
-      category: "Water Issues / Leaks",
-      location: "Elm Street 123",
-      description: "Water leak from fire hydrant",
-      status: "Resolved",
-      submittedAt: new Date("2024-10-08"),
-      phone: "+1234567890"
-    }
-  ];
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const getIcon = (category) => {
     switch (category.toLowerCase()) {
-      case "water issues / leaks":
+      case "water leak":
         return <Droplet className="w-6 h-6 text-[#5b9138]" />;
-      case "pothole / road damage":
+      case "pothole":
         return <Construction className="w-6 h-6 text-gray-700" />;
-      case "street light not working":
+      case "street light":
         return <Lightbulb className="w-6 h-6 text-yellow-600" />;
       default:
         return <Construction className="w-6 h-6 text-gray-700" />;
@@ -71,6 +53,47 @@ export default function MyReports() {
     Resolved: reports.filter((r) => r.status === "Resolved").length,
   };
 
+  // Fetch user reports on component mount
+  useEffect(() => {
+    const fetchUserReports = async () => {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+      if (!token || !user.id) {
+        toast.error("Please log in to view your reports");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5001/api/reports/user/${user.id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setReports(data.data || []);
+        } else {
+          setError(data.message || 'Failed to fetch reports');
+          toast.error(data.message || 'Failed to fetch reports');
+        }
+      } catch (error) {
+        console.error('Fetch reports error:', error);
+        setError('Network error. Please try again.');
+        toast.error('Network error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserReports();
+  }, [navigate]);
+
   const handleBack = () => {
     navigate("/");
   };
@@ -79,9 +102,35 @@ export default function MyReports() {
     navigate("/report-issue");
   };
 
-  const handleCancelReport = (id) => {
-    // Mock cancel functionality
-    alert(`Report ${id} cancelled`);
+  const handleCancelReport = async (id) => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      toast.error("Please log in to cancel reports");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/reports/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Remove the report from the local state
+        setReports(reports.filter(report => report._id !== id));
+        toast.success("Report cancelled successfully");
+      } else {
+        toast.error(data.message || 'Failed to cancel report');
+      }
+    } catch (error) {
+      console.error('Cancel report error:', error);
+      toast.error('Network error. Please try again.');
+    }
   };
 
   return (
@@ -173,7 +222,16 @@ export default function MyReports() {
 
         {/* Reports List */}
         <div className="space-y-4">
-          {filteredReports.length === 0 ? (
+          {loading ? (
+            <div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#5b9138]" />
+              <p className="text-gray-500">Loading your reports...</p>
+            </div>
+          ) : error ? (
+            <div className="bg-white rounded-lg border-2 border-dashed border-red-300 p-12 text-center">
+              <p className="text-red-500">{error}</p>
+            </div>
+          ) : filteredReports.length === 0 ? (
             <div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
               <p className="text-gray-500">No reports found</p>
             </div>
@@ -214,6 +272,9 @@ export default function MyReports() {
                     <p className="text-gray-900 mb-1">{report.location}</p>
                     <p className="text-gray-600 mb-4" style={{ fontSize: '14px' }}>
                       {report.description}
+                    </p>
+                    <p className="text-gray-500 mb-2" style={{ fontSize: '12px' }}>
+                      Submitted: {new Date(report.createdAt).toLocaleDateString()}
                     </p>
 
                     {/* Progress Timeline */}
@@ -281,9 +342,9 @@ export default function MyReports() {
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Button>
-                      {report.status !== "Resolved" && (
+                      {report.status !== "resolved" && (
                         <button
-                          onClick={() => handleCancelReport(report.id)}
+                          onClick={() => handleCancelReport(report._id)}
                           className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
                           style={{ fontSize: '14px' }}
                         >

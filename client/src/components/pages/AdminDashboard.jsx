@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -18,70 +18,23 @@ import {
   FileText,
   Users,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import ReportFilter from "../common/ReportFilter";
-
-const mockIssues = [
-  {
-    id: "ISS-001",
-    category: "Pothole",
-    location: "Main St & 5th Ave",
-    description: "Large pothole causing traffic issues",
-    status: "pending",
-    date: "2025-10-08",
-    reporter: "John Doe",
-  },
-  {
-    id: "ISS-002",
-    category: "Water Leak",
-    location: "Oak Street 234",
-    description: "Water main break flooding the street",
-    status: "in-progress",
-    date: "2025-10-07",
-    reporter: "Jane Smith",
-  },
-  {
-    id: "ISS-003",
-    category: "Street Light",
-    location: "Park Ave & 12th St",
-    description: "Street light not working for 3 days",
-    status: "resolved",
-    date: "2025-10-06",
-    reporter: "Mike Johnson",
-  },
-  {
-    id: "ISS-004",
-    category: "Electricity",
-    location: "Elm Street District",
-    description: "Power outage affecting 20+ homes",
-    status: "in-progress",
-    date: "2025-10-08",
-    reporter: "Sarah Williams",
-  },
-  {
-    id: "ISS-005",
-    category: "Drainage",
-    location: "River Road 456",
-    description: "Blocked drainage causing flooding",
-    status: "pending",
-    date: "2025-10-08",
-    reporter: "Tom Brown",
-  },
-  {
-    id: "ISS-006",
-    category: "Graffiti",
-    location: "City Hall Wall",
-    description: "Vandalism on public property",
-    status: "rejected",
-    date: "2025-10-05",
-    reporter: "Anna Davis",
-  },
-];
+import { toast } from 'react-toastify';
 
 export function AdminDashboard() {
-  const [issues, setIssues] = useState(mockIssues);
+  const [issues, setIssues] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    resolved: 0,
+  });
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const filteredIssues = issues.filter((issue) => {
     const matchesStatus = statusFilter === "all" || issue.status === statusFilter;
@@ -123,36 +76,95 @@ export function AdminDashboard() {
     );
   };
 
-  const stats = [
+  const statsArray = [
     {
       title: "Total Reports",
-      value: issues.length.toString(),
+      value: stats.total.toString(),
       icon: FileText,
       color: "text-blue-500",
       bg: "bg-blue-100",
     },
     {
       title: "Pending",
-      value: issues.filter((i) => i.status === "pending").length.toString(),
+      value: stats.pending.toString(),
       icon: Clock,
       color: "text-yellow-600",
       bg: "bg-yellow-100",
     },
     {
       title: "In Progress",
-      value: issues.filter((i) => i.status === "in-progress").length.toString(),
+      value: stats.inProgress.toString(),
       icon: TrendingUp,
       color: "text-blue-600",
       bg: "bg-blue-100",
     },
     {
       title: "Resolved",
-      value: issues.filter((i) => i.status === "resolved").length.toString(),
+      value: stats.resolved.toString(),
       icon: CheckCircle,
       color: "text-green-600",
       bg: "bg-green-100",
     },
   ];
+
+  // Fetch reports and stats on component mount
+  useEffect(() => {
+    const fetchReports = async () => {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+      if (!token || user.role !== 'admin') {
+        toast.error("Admin access required");
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        // Fetch reports
+        const reportsResponse = await fetch('http://localhost:5001/api/reports', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        // Fetch stats
+        const statsResponse = await fetch('http://localhost:5001/api/reports/stats', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (reportsResponse.ok) {
+          const reportsData = await reportsResponse.json();
+          setIssues(reportsData.data || []);
+        } else {
+          setError('Failed to fetch reports');
+          toast.error('Failed to fetch reports');
+        }
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats({
+            total: statsData.data.total,
+            pending: statsData.data.pending,
+            inProgress: statsData.data.inProgress,
+            resolved: statsData.data.resolved,
+          });
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        setError('Network error. Please try again.');
+        toast.error('Network error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -196,19 +208,25 @@ export function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="flex w-full justify-between gap-6 mb-6">
-              {stats.map((stat) => (
-                <div key={stat.title} className="w-1/4 min-h-[120px] p-5 bg-white rounded-xl shadow-sm flex items-center justify-between">
-                  <div className="flex flex-col gap-y-2">
-                    <p className="text-base font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-3xl font-bold">{stat.value}</p>
-                  </div>
-                  <div className={`${stat.bg} p-3 rounded-lg`}>
-                    <stat.icon className={`${stat.color} w-8 h-8`} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex w-full justify-center gap-6 mb-6">
+                <Loader2 className="w-8 h-8 animate-spin text-[#5b9138]" />
+              </div>
+            ) : (
+             <div className="flex w-full justify-between gap-6 mb-6">
+               {statsArray.map((stat) => (
+                 <div key={stat.title} className="w-1/4 min-h-[120px] p-5 bg-white rounded-xl shadow-sm flex items-center justify-between">
+                   <div className="flex flex-col gap-y-2">
+                     <p className="text-base font-medium text-muted-foreground">{stat.title}</p>
+                     <p className="text-3xl font-bold">{stat.value}</p>
+                   </div>
+                   <div className={`${stat.bg} p-3 rounded-lg`}>
+                     <stat.icon className={`${stat.color} w-8 h-8`} />
+                   </div>
+                 </div>
+               ))}
+             </div>
+           )}
 
             {/* Filters */}
             <div className="bg-white rounded-lg shadow-sm mt-6 mb-4 p-6">
@@ -247,9 +265,9 @@ export function AdminDashboard() {
                   </TableHeader>
                   <TableBody>
                     {filteredIssues.map((issue) => (
-                      <TableRow key={issue.id} className="hover:bg-gray-50">
+                      <TableRow key={issue._id} className="hover:bg-gray-50">
                         <TableCell className="px-4 py-3">
-                          <span className="text-gray-700 text-sm">{issue.id}</span>
+                          <span className="text-gray-700 text-sm">{issue.formattedId || issue._id.slice(-6).toUpperCase()}</span>
                         </TableCell>
                         <TableCell className="px-4 py-3">
                           <div className="flex items-center">
@@ -265,10 +283,10 @@ export function AdminDashboard() {
                           </span>
                         </TableCell>
                         <TableCell className="px-4 py-3">
-                          <span className="text-gray-600 text-sm">{issue.reporter}</span>
+                          <span className="text-gray-600 text-sm">{issue.user?.name || 'Unknown'}</span>
                         </TableCell>
                         <TableCell className="px-4 py-3">
-                          <span className="text-gray-600 text-sm">{issue.date}</span>
+                          <span className="text-gray-600 text-sm">{new Date(issue.createdAt).toLocaleDateString()}</span>
                         </TableCell>
                         <TableCell className="px-4 py-3">
                           <div className={`inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full ${

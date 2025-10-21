@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Button } from "../common/Button";
-import { Eye, EyeOff, ArrowLeft, Check, X } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -32,7 +35,7 @@ export default function SignUp() {
   const strengthLabels = ["Weak", "Fair", "Good", "Strong"];
   const strengthColors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation
@@ -56,20 +59,52 @@ export default function SignUp() {
       return;
     }
 
-    // Simulate sign up
-    toast.success(`Welcome to CityFix, ${formData.fullName}!`, {
-      style: {
-        background: '#ECFDF3',
-        color: '#166534',
-        border: '1px solid #A7F3D0',
-        fontWeight: 'bold',
-      },
-      icon: '✅',
-    });
-    setTimeout(() => {
-      // Navigate to report issue page after signup
-      navigate("/report-issue");
-    }, 1000);
+    setLoading(true);
+
+    try {
+      // Call the backend API
+      const response = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success - use auth context to login
+        login(data.data.user, data.data.token);
+
+        toast.success(`Welcome to CityFix, ${formData.fullName}!`, {
+          style: {
+            background: '#ECFDF3',
+            color: '#166534',
+            border: '1px solid #A7F3D0',
+            fontWeight: 'bold',
+          },
+          icon: '✅',
+        });
+
+        setTimeout(() => {
+          // Navigate to report issue page after signup
+          navigate("/report-issue");
+        }, 1000);
+      } else {
+        // Error from backend
+        toast.error(data.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateFormData = (field, value) => {
@@ -258,10 +293,12 @@ export default function SignUp() {
 
           <Button
             type="submit"
-            className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] text-white rounded-full py-3 transition-all border-0 mt-6"
+            disabled={loading}
+            className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] disabled:bg-gray-400 text-white rounded-full py-3 transition-all border-0 mt-6 flex items-center justify-center gap-2"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
-            Create Account
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
 

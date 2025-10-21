@@ -1,39 +1,72 @@
 import { useState } from "react";
 import { Button } from "../common/Button";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
-    // Simulate login - extract name from email
-    const userName = email.split("@")[0];
-    toast.success(`Welcome back, ${userName}!`, {
-      style: {
-        background: '#ECFDF3',
-        color: '#166534',
-        border: '1px solid #A7F3D0',
-        fontWeight: 'bold',
-      },
-      icon: '✅',
-    });
-    setTimeout(() => {
-      // Navigate to my reports page after login for returning users
-      navigate("/my-reports");
-    }, 1000);
+    setLoading(true);
+
+    try {
+      // Call the backend API
+      const response = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success - use auth context to login
+        login(data.data.user, data.data.token);
+
+        toast.success(`Welcome back, ${data.data.user.name}!`, {
+          style: {
+            background: '#ECFDF3',
+            color: '#166534',
+            border: '1px solid #A7F3D0',
+            fontWeight: 'bold',
+          },
+          icon: '✅',
+        });
+
+        setTimeout(() => {
+          // Navigate to my reports page after login for returning users
+          navigate("/my-reports");
+        }, 1000);
+      } else {
+        // Error from backend
+        toast.error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onNavigate = (page) => {
@@ -128,10 +161,12 @@ export default function SignIn() {
 
           <Button
             type="submit"
-            className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] text-white rounded-full py-3 transition-all border-0"
+            disabled={loading}
+            className="w-full bg-[#5b9138] hover:bg-[#4a7a2d] disabled:bg-gray-400 text-white rounded-full py-3 transition-all border-0 flex items-center justify-center gap-2"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
-            Sign In
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
 

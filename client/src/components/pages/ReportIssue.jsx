@@ -28,30 +28,76 @@ export default function ReportIssue() {
     return categories[value] || value;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!category || !location || !description) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    // Generate a report object
-    const report = {
-      id: Math.random().toString(36).substr(2, 9).toUpperCase(),
-      category: getCategoryName(category),
-      location,
-      description,
-      status: "Submitted",
-      submittedAt: new Date(),
-      phone: phone || undefined,
-    };
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error("Please log in to submit a report");
+      navigate("/login");
+      return;
+    }
 
-    // Store report in localStorage for demo purposes
-    localStorage.setItem("lastReport", JSON.stringify(report));
+    try {
+      // Prepare report data
+      const reportData = {
+        category: category === "pothole" ? "Pothole" :
+                 category === "water" ? "Water Leak" :
+                 category === "electricity" ? "Electricity" :
+                 category === "streetlight" ? "Street Light" :
+                 category === "drainage" ? "Drainage" :
+                 category === "graffiti" ? "Graffiti" : "Other",
+        location,
+        description,
+      };
 
-    // Navigate to confirmation page
-    navigate("/report-confirmation");
+      // Add phone if provided
+      if (phone) {
+        reportData.phone = phone;
+      }
+
+      // Call the backend API
+      const response = await fetch('http://localhost:5001/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Success - store report data for confirmation page
+        localStorage.setItem("lastReport", JSON.stringify(data.data));
+
+        toast.success("Report submitted successfully!", {
+          style: {
+            background: '#ECFDF3',
+            color: '#166534',
+            border: '1px solid #A7F3D0',
+            fontWeight: 'bold',
+          },
+          icon: '✅',
+        });
+
+        // Navigate to confirmation page
+        navigate("/report-confirmation");
+      } else {
+        // Error from backend
+        toast.error(data.message || 'Failed to submit report');
+      }
+    } catch (error) {
+      console.error('Report submission error:', error);
+      toast.error('Network error. Please try again.');
+    }
   };
 
   const handleImageChange = (e) => {

@@ -1,5 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from './contexts/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "./components/layout/Navbar";
@@ -16,7 +17,7 @@ import Footer from "./components/Footer";
 
 export default function App() {
   return (
-    <Router>
+    <AuthProvider><Router>
       <div className="font-inter">
         <Navbar />
         <Routes>
@@ -41,6 +42,6 @@ export default function App() {
           theme="light"
         />
       </div>
-    </Router>
+    </Router></AuthProvider>
   );
 }
