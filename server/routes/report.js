@@ -1,7 +1,9 @@
+// routes/report.js
 const express = require('express');
 const router = express.Router();
 const Report = require('../models/Report');
 const authMiddleware = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/isAdmin');
 
 // POST /api/report
 router.post('/', authMiddleware, async (req, res) => {
@@ -28,7 +30,7 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/my-reports
+// GET /api/report/my-reports
 router.get('/my-reports', authMiddleware, async (req, res) => {
   try {
     const reports = await Report.find({ user: req.user.userId }).sort({ createdAt: -1 });
@@ -43,17 +45,11 @@ router.get('/my-reports', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/report/admin/reports
-router.get('/admin/reports', authMiddleware, async (req, res) => {
+// GET /api/report/admin/reports (ADMIN ONLY)
+router.get('/admin/reports', authMiddleware, isAdmin, async (req, res) => {
   try {
-    // Check if user is admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admins only.' });
-    }
-
-    // Fetch all reports, most recent first, including user info
     const reports = await Report.find()
-      .populate('user', 'fullName email') // optional: show user info
+      .populate('user', 'fullName email')
       .sort({ createdAt: -1 });
 
     res.status(200).json({

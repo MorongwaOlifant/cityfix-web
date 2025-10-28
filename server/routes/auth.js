@@ -56,28 +56,37 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the user
+    // 1. Find the user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Validate password
+    // 2. Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Create JWT including role
-    const token = jwt.sign(
+    // 3. Create short-lived access token (e.g., 15 min)
+    const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
     );
 
+    // 4. Create long-lived refresh token (e.g., 7 days)
+    const refreshToken = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // 5. Respond with both tokens
     res.status(200).json({
       message: 'Login successful',
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.fullName,
@@ -89,6 +98,32 @@ router.post('/login', async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
   }
+});
+
+// POST /api/refresh
+router.post('/refresh', (req, res) => {
+  const { refreshToken } = req.body;
+
+  // 1. Check if token was sent
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  // 2. Verify refresh token
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid refresh token' });
+
+    // 3. Generate new access token
+    console.log("Refresh Token:", refreshToken);
+
+    const newAccessToken = jwt.sign(
+      { userId: user.userId, role: user.role },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    res.json({ accessToken: newAccessToken });
+  });
 });
 
 // GET /api/me
