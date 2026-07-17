@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "../common/Button";
 import { CheckCircle2, MapPin, FileText, Upload } from "lucide-react";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { apiUrl } from '../../lib/api';

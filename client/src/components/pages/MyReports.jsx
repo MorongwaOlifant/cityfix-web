@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Search, Eye, X, Droplet, Construction, Lightbulb, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Eye, Droplet, Construction, Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "../common/Button";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';

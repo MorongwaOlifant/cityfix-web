@@ -261,7 +261,7 @@ export default function SignUp() {
                 ) : (
                   <>
                     <X size={16} className="text-red-500" />
-                    <span className="text-red-500" style={{ fontSize: '12px' }}>Passwords don't match</span>
+                    <span className="text-red-500" style={{ fontSize: '12px' }}>Passwords don&apos;t match</span>
                   </>
                 )}
               </div>

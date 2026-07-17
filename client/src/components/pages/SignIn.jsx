@@ -176,7 +176,7 @@ export default function SignIn() {
         {/* Sign Up Link */}
         <div className="mt-6 text-center">
           <p className="text-[#6B7280]" style={{ fontSize: '14px' }}>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button
               onClick={() => onNavigate("signup")}
               className="text-[#5b9138] hover:text-[#4a7a2d] transition-colors"

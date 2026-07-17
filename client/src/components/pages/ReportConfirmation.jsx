@@ -127,7 +127,7 @@ export default function ReportConfirmation() {
         {/* Contact Info */}
         {report.phone && (
           <p className="text-center text-gray-600" style={{ fontSize: '14px' }}>
-            We'll send updates to {report.phone}
+            We&apos;ll send updates to {report.phone}
           </p>
         )}
       </div>
