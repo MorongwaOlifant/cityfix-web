@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { apiUrl } from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -17,15 +18,38 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing auth on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    const validateStoredAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
+      if (storedToken && storedUser) {
+        try {
+          // Validate token by calling /me endpoint
+          const response = await fetch(apiUrl('/api/me'), {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+            },
+          });
 
-    setLoading(false);
+          if (response.ok) {
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          } else {
+            // Token invalid, clear storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        } catch (error) {
+          // Network error, clear storage to be safe
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+
+      setLoading(false);
+    };
+
+    validateStoredAuth();
   }, []);
 
   const login = (userData, authToken) => {

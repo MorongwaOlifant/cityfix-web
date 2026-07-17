@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
   const authHeader = req.headers['authorization'];
+  const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+
+  if (!accessTokenSecret) {
+    return res.status(500).json({ message: 'Authentication is not configured' });
+  }
 
   // 1. Check header exists and starts with Bearer
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,7 +18,7 @@ module.exports = function (req, res, next) {
 
   try {
     // 3. Verify using secret from .env
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, accessTokenSecret);
 
     // 4. Store decoded payload in req.user
     req.user = decoded;

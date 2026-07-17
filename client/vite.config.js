@@ -5,20 +5,14 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5050',
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-    },
-  },
-  esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.(js|jsx)$/,
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-      },
     },
   },
 })

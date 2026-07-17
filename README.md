@@ -1,6 +1,6 @@
 # CityFix
 
-CityFix is a full-stack web application designed to help citizens report and track city maintenance issues, such as potholes, broken streetlights, or other infrastructure problems. The application consists of a React frontend for user interaction and a Node.js/Express backend with MongoDB for data storage and JWT-based authentication.
+CityFix is a full-stack web application designed to help citizens report and track city maintenance issues, such as potholes, broken streetlights, or other infrastructure problems. The application consists of a React frontend for user interaction and a Node.js/Express backend with PostgreSQL for data storage and JWT-based authentication.
 
 ## Features
 
@@ -46,7 +46,7 @@ CityFix/
 
 - Node.js (v14 or higher)
 - npm or yarn
-- MongoDB (local or cloud instance)
+- PostgreSQL (local or cloud instance)
 
 ### Backend Setup
 
@@ -63,8 +63,11 @@ CityFix/
 3. Create a `.env` file in the root directory with the following variables:
    ```
    PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/cityfix
-   JWT_SECRET=your_jwt_secret_key
+   DATABASE_URL=postgres://user:password@localhost:5432/cityfix
+   ACCESS_TOKEN_SECRET=your_access_token_secret
+   REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_PASSWORD=use_a_strong_password
    ```
 
 4. Start the development server:
@@ -98,7 +101,7 @@ The frontend will run on `http://localhost:3001` (or as configured).
 - Backend: `npm run dev` in server directory
 - Frontend: `npm run dev` in client directory
 
-Ensure MongoDB is running and accessible.
+Ensure PostgreSQL is running and accessible.
 
 ## API Endpoints
 
@@ -109,7 +112,7 @@ Ensure MongoDB is running and accessible.
 
 - **Frontend:** React, JavaScript
 - **Backend:** Node.js, Express.js
-- **Database:** MongoDB with Mongoose
+- **Database:** PostgreSQL
 - **Authentication:** JWT, bcryptjs
 - **Security:** Helmet, CORS
 

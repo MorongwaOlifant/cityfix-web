@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Button } from "../common/Button";
 import { Eye, EyeOff, ArrowLeft, Check, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiUrl } from '../../lib/api';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,13 +65,13 @@ export default function SignUp() {
 
     try {
       // Call the backend API
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      const response = await fetch(apiUrl('/api/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.fullName,
+          fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
         }),
@@ -79,7 +81,7 @@ export default function SignUp() {
 
       if (response.ok) {
         // Success - use auth context to login
-        login(data.data.user, data.data.token);
+        login(data.user, data.accessToken || data.token);
 
         toast.success(`Welcome to CityFix, ${formData.fullName}!`, {
           style: {
@@ -92,8 +94,8 @@ export default function SignUp() {
         });
 
         setTimeout(() => {
-          // Navigate to report issue page after signup
-          navigate("/report-issue");
+          const destination = location.state?.from?.pathname || "/report-issue";
+          navigate(destination, { replace: true });
         }, 1000);
       } else {
         // Error from backend
@@ -113,7 +115,7 @@ export default function SignUp() {
 
   const onNavigate = (page) => {
     if (page === "login") {
-      navigate("/login");
+      navigate("/login-entry");
     } else if (page === "signin") {
       navigate("/login/user");
     }

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "../common/Button";
 import { CheckCircle2, MapPin, FileText, Upload } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { apiUrl } from '../../lib/api';
 
 export default function ReportIssue() {
   const navigate = useNavigate();
@@ -13,16 +14,15 @@ export default function ReportIssue() {
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const getCategoryName = (value) => {
     const categories = {
       pothole: "Pothole / Road Damage",
       water: "Water Issues / Leaks",
-      electricity: "Electricity Outage",
       streetlight: "Street Light Not Working",
-      drainage: "Drainage / Sewage",
+      dumping: "Illegal Dumping",
       sidewalk: "Sidewalk Damage",
-      graffiti: "Graffiti / Vandalism",
       other: "Other",
     };
     return categories[value] || value;
@@ -40,7 +40,7 @@ export default function ReportIssue() {
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error("Please log in to submit a report");
-      navigate("/login");
+      navigate("/login/user");
       return;
     }
 
@@ -49,10 +49,8 @@ export default function ReportIssue() {
       const reportData = {
         category: category === "pothole" ? "Pothole" :
                  category === "water" ? "Water Leak" :
-                 category === "electricity" ? "Electricity" :
                  category === "streetlight" ? "Street Light" :
-                 category === "drainage" ? "Drainage" :
-                 category === "graffiti" ? "Graffiti" : "Other",
+                 category === "dumping" ? "Illegal Dumping" : "Other",
         location,
         description,
       };
@@ -62,8 +60,12 @@ export default function ReportIssue() {
         reportData.phone = phone;
       }
 
+      if (imagePreview) {
+        reportData.imageUrl = imagePreview;
+      }
+
       // Call the backend API
-      const response = await fetch('http://localhost:5001/api/reports', {
+      const response = await fetch(apiUrl('/api/report'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +78,7 @@ export default function ReportIssue() {
 
       if (response.ok) {
         // Success - store report data for confirmation page
-        localStorage.setItem("lastReport", JSON.stringify(data.data));
+        localStorage.setItem("lastReport", JSON.stringify(data.report));
 
         toast.success("Report submitted successfully!", {
           style: {
@@ -90,6 +92,12 @@ export default function ReportIssue() {
 
         // Navigate to confirmation page
         navigate("/report-confirmation");
+      } else if (response.status === 401) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.error('Session expired. Please log in again.');
+        navigate('/login/user');
       } else {
         // Error from backend
         toast.error(data.message || 'Failed to submit report');
@@ -101,9 +109,28 @@ export default function ReportIssue() {
   };
 
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+    const selectedFile = e.target.files && e.target.files[0];
+    if (!selectedFile) {
+      return;
     }
+
+    if (!selectedFile.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (selectedFile.size > 2 * 1024 * 1024) {
+      toast.error("Please upload an image smaller than 2MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImage(selectedFile);
+      setImagePreview(String(reader.result || ""));
+    };
+    reader.onerror = () => toast.error("Could not read the selected image");
+    reader.readAsDataURL(selectedFile);
   };
 
   return (
@@ -201,11 +228,9 @@ export default function ReportIssue() {
                     <option value="">Select a category</option>
                     <option value="pothole">Pothole / Road Damage</option>
                     <option value="water">Water Issues / Leaks</option>
-                    <option value="electricity">Electricity Outage</option>
+                    <option value="dumping">Illegal Dumping</option>
                     <option value="streetlight">Street Light Not Working</option>
-                    <option value="drainage">Drainage / Sewage</option>
                     <option value="sidewalk">Sidewalk Damage</option>
-                    <option value="graffiti">Graffiti / Vandalism</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
@@ -214,7 +239,7 @@ export default function ReportIssue() {
                   {[
                     { value: "pothole", label: "Pothole", IconComponent: MapPin },
                     { value: "water", label: "Water", IconComponent: FileText },
-                    { value: "electricity", label: "Power", IconComponent: CheckCircle2 },
+                    { value: "dumping", label: "Dumping", IconComponent: CheckCircle2 },
                     { value: "streetlight", label: "Lights", IconComponent: Upload },
                   ].map((item) => (
                     <button
@@ -327,6 +352,13 @@ export default function ReportIssue() {
                         {image ? image.name : "Click to upload an image"}
                       </span>
                     </label>
+                    {imagePreview && (
+                      <img
+                        src={imagePreview}
+                        alt="Selected issue"
+                        className="mt-4 mx-auto h-32 w-48 rounded-lg object-cover border border-gray-200"
+                      />
+                    )}
                   </div>
                 </div>
 
@@ -383,6 +415,13 @@ export default function ReportIssue() {
                     <div>
                       <div className="text-gray-500 mb-1">Attached Photo</div>
                       <div className="text-gray-900">{image.name}</div>
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Selected issue"
+                          className="mt-3 h-36 w-full max-w-sm rounded-lg object-cover border border-gray-200"
+                        />
+                      )}
                     </div>
                   )}
                 </div>

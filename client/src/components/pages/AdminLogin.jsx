@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { Button } from "../common/Button";
-import { Eye, EyeOff, ArrowLeft, Shield } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Shield, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiUrl } from '../../lib/api';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -19,26 +24,61 @@ export default function AdminLogin() {
       return;
     }
 
-    // Simulate admin login validation
-    if (email === "admin@cityfix.com" && password === "admin123") {
-      toast.success("Admin access granted", {
-        style: {
-          background: '#ECFDF3',
-          color: '#166534',
-          border: '1px solid #A7F3D0',
-          fontWeight: 'bold',
+    setLoading(true);
+
+    try {
+      // Call the backend API
+      const response = await fetch(apiUrl('/api/login'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        icon: '✅',
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
-      navigate("/admin/dashboard");
-    } else {
-      toast.error("Invalid admin credentials");
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Check if user is admin
+        if (data.user.role === 'admin') {
+          // Success - use auth context to login
+          login(data.user, data.accessToken);
+
+          toast.success("Admin access granted", {
+            style: {
+              background: '#ECFDF3',
+              color: '#166534',
+              border: '1px solid #A7F3D0',
+              fontWeight: 'bold',
+            },
+            icon: '✅',
+          });
+
+          setTimeout(() => {
+            const destination = location.state?.from?.pathname || "/admin/dashboard";
+            navigate(destination, { replace: true });
+          }, 1000);
+        } else {
+          toast.error("Access denied. Admin privileges required.");
+        }
+      } else {
+        // Error from backend
+        toast.error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const onNavigate = (page) => {
     if (page === "login") {
-      navigate("/login");
+      navigate("/login-entry");
     }
   };
 
@@ -120,19 +160,19 @@ export default function AdminLogin() {
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-lg text-white rounded-full py-3 transition-all border-0 mt-4"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-lg disabled:bg-gray-400 text-white rounded-full py-3 transition-all border-0 mt-4 flex items-center justify-center gap-2"
             style={{ fontSize: '16px', fontWeight: 600 }}
           >
-            Sign In as Admin
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? 'Signing In...' : 'Sign In as Admin'}
           </Button>
         </form>
 
         {/* Demo Credentials */}
         <div className="mt-6 p-4 bg-gray-50 rounded-xl">
           <p className="text-[#6B7280] text-center" style={{ fontSize: '12px' }}>
-            <strong>Demo Credentials:</strong><br />
-            Email: admin@cityfix.com<br />
-            Password: admin123
+            Admin credentials are managed through the deployment environment.
           </p>
         </div>
       </motion.div>

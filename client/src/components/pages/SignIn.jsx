@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Button } from "../common/Button";
 import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiUrl } from '../../lib/api';
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -26,7 +28,7 @@ export default function SignIn() {
 
     try {
       // Call the backend API
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch(apiUrl('/api/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,9 +43,9 @@ export default function SignIn() {
 
       if (response.ok) {
         // Success - use auth context to login
-        login(data.data.user, data.data.token);
+        login(data.user, data.accessToken);
 
-        toast.success(`Welcome back, ${data.data.user.name}!`, {
+        toast.success(`Welcome back, ${data.user.name}!`, {
           style: {
             background: '#ECFDF3',
             color: '#166534',
@@ -54,8 +56,8 @@ export default function SignIn() {
         });
 
         setTimeout(() => {
-          // Navigate to my reports page after login for returning users
-          navigate("/my-reports");
+          const destination = location.state?.from?.pathname || "/my-reports";
+          navigate(destination, { replace: true });
         }, 1000);
       } else {
         // Error from backend
@@ -71,9 +73,9 @@ export default function SignIn() {
 
   const onNavigate = (page) => {
     if (page === "login") {
-      navigate("/login");
+      navigate("/login-entry");
     } else if (page === "signup") {
-      navigate("/signup");
+      navigate("/signup", { state: location.state });
     }
   };
 
@@ -152,6 +154,7 @@ export default function SignIn() {
             </label>
             <button
               type="button"
+              onClick={() => toast.info("Password reset is not available yet. Please contact CityFix support.")}
               className="text-[#5b9138] hover:text-[#4a7a2d] transition-colors"
               style={{ fontSize: '14px' }}
             >

@@ -1,8 +1,19 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Search, Eye, X, Droplet, Construction, Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "../common/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { apiUrl } from '../../lib/api';
+
+const normalizeStatus = (status) => {
+  const statuses = {
+    Pending: 'Pending',
+    Submitted: 'Pending',
+    'In Progress': 'In Progress',
+    Resolved: 'Resolved',
+  };
+  return statuses[status] || status || 'Pending';
+};
 
 export default function MyReports() {
   const navigate = useNavigate();
@@ -27,7 +38,7 @@ export default function MyReports() {
 
   const getStatusProgress = (status) => {
     switch (status) {
-      case "Submitted":
+      case "Pending":
         return 33;
       case "In Progress":
         return 66;
@@ -43,14 +54,14 @@ export default function MyReports() {
       searchQuery === "" ||
       report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === null || report.status === statusFilter;
+    const matchesStatus = statusFilter === null || normalizeStatus(report.status) === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const statusCounts = {
-    Submitted: reports.filter((r) => r.status === "Submitted").length,
-    "In Progress": reports.filter((r) => r.status === "In Progress").length,
-    Resolved: reports.filter((r) => r.status === "Resolved").length,
+    Pending: reports.filter((r) => normalizeStatus(r.status) === "Pending").length,
+    "In Progress": reports.filter((r) => normalizeStatus(r.status) === "In Progress").length,
+    Resolved: reports.filter((r) => normalizeStatus(r.status) === "Resolved").length,
   };
 
   // Fetch user reports on component mount
@@ -61,13 +72,13 @@ export default function MyReports() {
 
       if (!token || !user.id) {
         toast.error("Please log in to view your reports");
-        navigate("/login");
+        navigate("/login/user");
         return;
       }
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5001/api/reports/user/${user.id}`, {
+        const response = await fetch(apiUrl('/api/report/my-reports'), {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -77,7 +88,13 @@ export default function MyReports() {
         const data = await response.json();
 
         if (response.ok) {
-          setReports(data.data || []);
+          setReports(data.reports || []);
+        } else if (response.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          toast.error('Session expired. Please log in again.');
+          navigate('/login/user');
         } else {
           setError(data.message || 'Failed to fetch reports');
           toast.error(data.message || 'Failed to fetch reports');
@@ -102,36 +119,7 @@ export default function MyReports() {
     navigate("/report-issue");
   };
 
-  const handleCancelReport = async (id) => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      toast.error("Please log in to cancel reports");
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5001/api/reports/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Remove the report from the local state
-        setReports(reports.filter(report => report._id !== id));
-        toast.success("Report cancelled successfully");
-      } else {
-        toast.error(data.message || 'Failed to cancel report');
-      }
-    } catch (error) {
-      console.error('Cancel report error:', error);
-      toast.error('Network error. Please try again.');
-    }
-  };
+  // Note: Cancel functionality removed as backend doesn't support DELETE
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,13 +166,13 @@ export default function MyReports() {
           </button>
           <button
             className={`cursor-pointer px-4 py-2 rounded-full transition-all ${
-              statusFilter === "Submitted"
+              statusFilter === "Pending"
                 ? "bg-gray-900 text-white"
                 : "bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400"
             }`}
-            onClick={() => setStatusFilter("Submitted")}
+            onClick={() => setStatusFilter("Pending")}
           >
-            {statusCounts.Submitted} Pending
+            {statusCounts.Pending} Pending
           </button>
           <button
             className={`cursor-pointer px-4 py-2 rounded-full transition-all ${
@@ -238,7 +226,7 @@ export default function MyReports() {
           ) : (
             filteredReports.map((report) => (
               <div
-                key={report.id}
+                key={report._id}
                 className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 hover:border-gray-400 transition-colors"
               >
                 <div className="flex items-start gap-4">
@@ -251,20 +239,20 @@ export default function MyReports() {
                       <div>
                         <h3 className="text-gray-900 mb-1">{report.category}</h3>
                         <p className="text-gray-500" style={{ fontSize: '12px' }}>
-                          #{report.id}
+                          #{(report.formattedId || report._id || '').slice(-8).toUpperCase()}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span
                           className={`rounded-full px-3 py-1 text-sm ${
-                            report.status === "In Progress"
+                            normalizeStatus(report.status) === "In Progress"
                               ? "bg-blue-100 text-blue-700"
-                              : report.status === "Resolved"
+                              : normalizeStatus(report.status) === "Resolved"
                               ? "bg-green-100 text-green-700"
                               : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {report.status === "In Progress" ? "In progress" : report.status.toLowerCase()}
+                          {normalizeStatus(report.status) === "In Progress" ? "In progress" : normalizeStatus(report.status).toLowerCase()}
                         </span>
                       </div>
                     </div>
@@ -287,7 +275,7 @@ export default function MyReports() {
                         <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gray-900 transition-all duration-500"
-                            style={{ width: `${getStatusProgress(report.status)}%` }}
+                            style={{ width: `${getStatusProgress(normalizeStatus(report.status))}%` }}
                           ></div>
                         </div>
                         {/* Status Dots */}
@@ -295,7 +283,7 @@ export default function MyReports() {
                           <div className="flex items-center gap-2">
                             <div
                               className={`w-4 h-4 rounded-full border-2 ${
-                                getStatusProgress(report.status) >= 33
+                                getStatusProgress(normalizeStatus(report.status)) >= 33
                                   ? "border-gray-900 bg-gray-900"
                                   : "border-gray-300 bg-white"
                               }`}
@@ -307,7 +295,7 @@ export default function MyReports() {
                           <div className="flex items-center gap-2">
                             <div
                               className={`w-4 h-4 rounded-full border-2 ${
-                                getStatusProgress(report.status) >= 66
+                                getStatusProgress(normalizeStatus(report.status)) >= 66
                                   ? "border-gray-900 bg-gray-900"
                                   : "border-gray-300 bg-white"
                               }`}
@@ -319,7 +307,7 @@ export default function MyReports() {
                           <div className="flex items-center gap-2">
                             <div
                               className={`w-4 h-4 rounded-full border-2 ${
-                                getStatusProgress(report.status) >= 100
+                                getStatusProgress(normalizeStatus(report.status)) >= 100
                                   ? "border-gray-900 bg-gray-900"
                                   : "border-gray-300 bg-white"
                               }`}
@@ -342,16 +330,6 @@ export default function MyReports() {
                         <Eye className="w-4 h-4 mr-2" />
                         View
                       </Button>
-                      {report.status !== "resolved" && (
-                        <button
-                          onClick={() => handleCancelReport(report._id)}
-                          className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
-                          style={{ fontSize: '14px' }}
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>

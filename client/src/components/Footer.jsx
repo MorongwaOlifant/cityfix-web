@@ -205,34 +205,30 @@ export default function Footer() {
                 Empowering citizens to build better, safer, and more sustainable cities together.
               </p>
               <div className="flex space-x-3">
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#5b9138] text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300"
+                <span
+                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center"
                   aria-label="Facebook"
                 >
                   <Facebook size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#5b9138] text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300"
+                </span>
+                <span
+                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center"
                   aria-label="Twitter"
                 >
                   <Twitter size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#5b9138] text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300"
+                </span>
+                <span
+                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center"
                   aria-label="Instagram"
                 >
                   <Instagram size={18} />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-[#5b9138] text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300"
+                </span>
+                <span
+                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center"
                   aria-label="LinkedIn"
                 >
                   <Linkedin size={18} />
-                </a>
+                </span>
               </div>
             </div>
 
@@ -244,25 +240,25 @@ export default function Footer() {
               </div>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#how-it-works" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     How It Works
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#how-it-works" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     FAQ
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#real-impact" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Guidelines
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="mailto:support@cityfix.local" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Support
                   </a>
@@ -278,25 +274,25 @@ export default function Footer() {
               </div>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#hero" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#real-results" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Blog
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="#real-impact" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <a href="mailto:support@cityfix.local" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Contact
                   </a>
@@ -312,22 +308,22 @@ export default function Footer() {
               </div>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <span className="text-[#999999] flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Privacy Policy
-                  </a>
+                  </span>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <span className="text-[#999999] flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Terms of Service
-                  </a>
+                  </span>
                 </li>
                 <li>
-                  <a href="#" className="text-[#666666] hover:text-[#5b9138] transition-colors flex items-center gap-2">
+                  <span className="text-[#999999] flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#5b9138]"></span>
                     Cookie Policy
-                  </a>
+                  </span>
                 </li>
               </ul>
             </div>

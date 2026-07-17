@@ -1,12 +1,13 @@
 import { CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
 import { Button } from "../common/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function ReportConfirmation() {
   const navigate = useNavigate();
 
   // Get report from localStorage
   const report = JSON.parse(localStorage.getItem("lastReport") || "{}");
+  const reportReference = report.formattedId || report._id || report.id || 'Pending';
 
   const handleTrackReport = () => {
     // Navigate to my reports page
@@ -50,7 +51,7 @@ export default function ReportConfirmation() {
             <div>
               <h3 className="text-gray-900 mb-1">Your Report</h3>
               <p className="text-gray-500" style={{ fontSize: '14px' }}>
-                Reference: #{report.id}
+                Reference: #{String(reportReference).slice(-8).toUpperCase()}
               </p>
             </div>
           </div>

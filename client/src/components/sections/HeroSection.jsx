@@ -1,11 +1,17 @@
 // File: client/src/components/sections/HeroSection.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from "@/components/common/Button";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const HeroSection = ({ onNavigate }) => {
   const navigate = useNavigate();
+  const auth = useAuth();
+  const isLoggedIn = auth.isAuthenticated();
+  const isAdmin = auth.user?.role === 'admin';
+  const ctaLabel = isAdmin ? 'Open Admin Dashboard' : isLoggedIn ? 'Report an Issue' : 'Get Started';
+  const ctaPath = isAdmin ? '/admin/dashboard' : isLoggedIn ? '/report-issue' : '/login-entry';
+
   return (
     <div id="hero" className="bg-white">
       {/* Hero Section */}
@@ -32,12 +38,12 @@ const HeroSection = ({ onNavigate }) => {
               whileTap={{ scale: 0.98 }}
             >
               <button
-                onClick={() => navigate("/login-entry")}
+                onClick={() => navigate(ctaPath)}
                 className="relative bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-2xl text-white rounded-[50px] px-24 py-5 transition-all shadow-xl overflow-hidden group border-0"
                 style={{ fontSize: '18px', fontWeight: 600 }}
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  Report an Issue
+                  {ctaLabel}
                   <motion.span
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -53,6 +59,25 @@ const HeroSection = ({ onNavigate }) => {
                   transition={{ duration: 0.6 }}
                 />
               </button>
+              {!isLoggedIn && (
+                <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/login/user", { state: { from: { pathname: "/report-issue" } } })}
+                    className="text-sm font-semibold text-[#5b9138] hover:text-[#4a7a2d]"
+                  >
+                    Citizen login
+                  </button>
+                  <span className="hidden text-gray-300 sm:block">|</span>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/login/admin")}
+                    className="text-sm font-semibold text-[#f2701d] hover:text-[#c85f17]"
+                  >
+                    Admin login
+                  </button>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         </div>

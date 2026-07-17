@@ -1,7 +1,7 @@
 import { User, Shield } from "lucide-react";
 import { Button } from "../common/Button";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginEntry() {
   const navigate = useNavigate();
@@ -19,20 +19,7 @@ export default function LoginEntry() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-4">
-      {/* Custom Navbar - Only Logo */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-start items-center py-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
-                <div className="w-5 h-5 border-2 border-white rounded-md"></div>
-              </div>
-              <span className="text-xl font-semibold text-gray-800">CityFix</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-[calc(100vh-72px)] bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-4 py-12">
       <div className="max-w-4xl w-full">
         {/* Header */}
         <motion.div
@@ -50,7 +37,7 @@ export default function LoginEntry() {
             Welcome to CityFix
           </h1>
           <p className="text-[#6B7280]" style={{ fontSize: '18px' }}>
-            Choose how you'd like to continue
+            Choose the portal that matches what you need to do
           </p>
         </motion.div>
 
@@ -72,7 +59,7 @@ export default function LoginEntry() {
                   For Citizens
                 </h2>
                 <p className="text-[#6B7280]" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                  Report issues, track progress, and make your city better
+                  Submit a new issue, add a photo, and track updates from the city team
                 </p>
               </div>
               <div className="space-y-3 w-full">
@@ -110,7 +97,7 @@ export default function LoginEntry() {
                   For Administrators
                 </h2>
                 <p className="text-[#6B7280]" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                  Manage reports, track resolutions, and oversee city operations
+                  Review incoming reports, inspect details, update status, and fulfil resolved work
                 </p>
               </div>
               <div className="w-full">

@@ -1,20 +1,32 @@
-import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+
+const homeSections = [
+  { id: "hero", label: "Home" },
+  { id: "how-it-works", label: "How It Works" },
+  { id: "real-impact", label: "Impact" },
+  { id: "real-results", label: "Results" },
+];
 
 export default function Navbar() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login-entry";
-  const isSignInPage = location.pathname === "/login/user";
-  const isSignUpPage = location.pathname === "/signup";
-  const isAdminLoginPage = location.pathname === "/login/admin";
-  const isReportIssuePage = location.pathname === "/report-issue";
-  const isReportConfirmationPage = location.pathname === "/report-confirmation";
-  const isMyReportsPage = location.pathname === "/my-reports";
-  const isAdminDashboardPage = location.pathname === "/admin/dashboard";
+  const navigate = useNavigate();
+  const auth = useAuth();
   const [activeSection, setActiveSection] = useState("hero");
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isHome = location.pathname === "/";
+  const isAdmin = auth.user?.role === "admin";
+  const isLoggedIn = auth.isAuthenticated();
 
   useEffect(() => {
-    const sections = ["hero", "how-it-works", "real-impact", "real-results"];
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isHome) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,106 +36,136 @@ export default function Navbar() {
           }
         });
       },
-      { threshold: 0.5, rootMargin: "-50% 0px -50% 0px" }
+      { threshold: 0.35 }
     );
 
-    sections.forEach((id) => {
+    homeSections.forEach(({ id }) => {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [isHome]);
+
+  const handleLogout = () => {
+    auth.logout();
+    navigate("/");
+  };
+
+  const goToHomeSection = (sectionId) => {
+    if (isHome) {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      window.setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+      }, 50);
+    }
+  };
+
+  const primaryLinks = isHome ? (
+    homeSections.map((section) => (
+      <button
+        key={section.id}
+        type="button"
+        onClick={() => goToHomeSection(section.id)}
+        className={`transition-colors ${
+          activeSection === section.id ? "font-bold text-[#f18b24]" : "text-gray-600 hover:text-[#5b9138]"
+        }`}
+      >
+        {section.label}
+      </button>
+    ))
+  ) : (
+    <>
+      <Link to="/" className="text-gray-600 transition-colors hover:text-[#5b9138]">
+        Home
+      </Link>
+      {!isAdmin && isLoggedIn && (
+        <>
+          <Link to="/report-issue" className="text-gray-600 transition-colors hover:text-[#5b9138]">
+            Report Issue
+          </Link>
+          <Link to="/my-reports" className="text-gray-600 transition-colors hover:text-[#5b9138]">
+            My Reports
+          </Link>
+        </>
+      )}
+      {isAdmin && (
+        <Link to="/admin/dashboard" className="text-gray-600 transition-colors hover:text-[#5b9138]">
+          Admin Dashboard
+        </Link>
+      )}
+    </>
+  );
+
+  const actionLinks = (
+    <>
+      {!auth.loading && isLoggedIn ? (
+        <>
+          <span className="hidden text-sm text-gray-600 lg:inline">
+            {isAdmin ? "Admin" : "Signed in"}: {auth.user?.name || auth.user?.fullName || auth.user?.email}
+          </span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="min-h-10 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+          >
+            Sign Out
+          </button>
+        </>
+      ) : (
+        <>
+          <Link
+            to="/login/user"
+            state={{ from: { pathname: "/report-issue" } }}
+            className="min-h-10 rounded-full border border-[#5b9138] px-4 py-2 text-sm font-semibold text-[#5b9138] transition hover:bg-[#5b9138]/5"
+          >
+            Citizen Login
+          </Link>
+          <Link
+            to="/login/admin"
+            className="min-h-10 rounded-full bg-gradient-to-r from-[#f7941e] to-[#f2701d] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:shadow-md"
+          >
+            Admin Login
+          </Link>
+        </>
+      )}
+    </>
+  );
 
   return (
-    <nav className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-12 bg-white shadow-sm">
-      {/* Left: Logo */}
-      <Link to="/" className="flex items-center space-x-2 cursor-pointer">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] flex items-center justify-center shadow-md">
-          <div className="w-5 h-5 border-2 border-white rounded-md"></div>
-        </div>
-        <span className="text-xl font-semibold text-gray-800">CityFix</span>
-      </Link>
+    <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white shadow-sm">
+      <div className="flex min-h-[72px] items-center justify-between px-4 md:px-12">
+        <Link to="/" className="flex items-center space-x-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#5b9138] to-[#4a7a2d] shadow-md">
+            <div className="h-5 w-5 rounded-md border-2 border-white" />
+          </div>
+          <span className="text-xl font-semibold text-gray-800">CityFix</span>
+        </Link>
 
-      {/* Center: Navigation Links - Only show on non-login, non-signin, non-signup, non-admin, non-report, non-confirmation, non-my-reports, and non-admin-dashboard pages */}
-      {!isLoginPage && !isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && !isAdminDashboardPage && (
-        <div className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-          <a
-            href="#hero"
-            className={`transition-colors ${
-              activeSection === "hero" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-            }`}
-          >
-            Home
-          </a>
-          <a
-            href="#how-it-works"
-            className={`transition-colors ${
-              activeSection === "how-it-works" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-            }`}
-          >
-            How CityFix Works
-          </a>
-          <a
-            href="#real-impact"
-            className={`transition-colors ${
-              activeSection === "real-impact" ? "text-[#f18b24] font-bold" : "text-gray-600 hover:text-[#5b9138]"
-            }`}
-          >
-            Making Real Impact Together
-          </a>
-          <a
-            href="#real-results"
-            className={`transition-colors ${
-              activeSection === "real-results" ? "text-[#f18b24] font-bold" : "text-[#5b9138] hover:text-[#4a7a2d]"
-            }`}
-          >
-            Real People, Real Results
-          </a>
-        </div>
-      )}
+        <div className="hidden items-center gap-7 md:flex">{primaryLinks}</div>
 
-      {/* Right: Admin Info and Sign Out - Only show on admin dashboard page */}
-      {isAdminDashboardPage && (
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">Admin: Administrator</span>
-          <a href="/" className="border border-gray-300 text-sm px-4 py-1.5 rounded-full hover:bg-gray-100 transition">
-            Sign Out
-          </a>
-        </div>
-      )}
+        <div className="hidden items-center gap-3 md:flex">{actionLinks}</div>
 
-      {/* Right: Sign In Button or Home Button - Only show on non-signin, non-signup, non-admin, non-report, non-confirmation, non-my-reports, and non-admin-dashboard pages */}
-      {!isSignInPage && !isSignUpPage && !isAdminLoginPage && !isReportIssuePage && !isReportConfirmationPage && !isMyReportsPage && !isAdminDashboardPage && (
-        <div className="hidden md:block">
-          {isLoginPage ? (
-            <Link
-              to="/"
-              className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
-              style={{ borderRadius: '9999px' }}
-            >
-              Home
-            </Link>
-          ) : (
-            <Link
-              to="/login-entry"
-              className="bg-gradient-to-r from-[#f7941e] to-[#f2701d] hover:shadow-md text-white px-6 py-2 transition-all shadow-sm inline-block"
-              style={{ borderRadius: '9999px' }}
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      )}
-
-      {/* Mobile Menu Button (placeholder for hamburger) */}
-      <div className="md:hidden">
-        <button className="text-gray-600 hover:text-[#5b9138]">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((open) => !open)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 text-gray-700 md:hidden"
+          aria-label="Toggle navigation"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
+
+      {mobileOpen && (
+        <div className="border-t border-gray-100 bg-white px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-3">
+            {primaryLinks}
+            <div className="mt-2 flex flex-col gap-3 border-t border-gray-100 pt-4">{actionLinks}</div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
